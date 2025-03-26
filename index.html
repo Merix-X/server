@@ -1,14 +1,47 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="style.css">
     <title>Merix's server</title>
-  </head>
-  <body>
-    <h2>Merix's server</h2>
+    <script>
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function checkLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const hashedPassword = await hashPassword(password);
+            
+            const correctUsername = "admerix";
+            const correctHashedPassword = "5e4eeea132ea8e818aa190477fff2eb8fbc143605fdac25c4409ece0e9caeb4a";
+
+            if (username === correctUsername && hashedPassword === correctHashedPassword) {
+                window.location.href = "home.html"; // Přesměrování na jinou stránku
+            } else {
+                alert("Incorrect password!");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Merix's server</h1>
     <div id="container">
-      <h3>Merix Industries website</h3>
-      <a href="https://merix-industries.com/">Link here</a>
+        <h3>Login</h3>
+        <form onsubmit="checkLogin(event)">
+            <label for="username">Username:</label>
+            <input type="text" id="username" required><br><br>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" required><br><br>
+            
+            <button type="submit">Login</button>
+        </form>
     </div>
-  </body>
+</body>
 </html>
