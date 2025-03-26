@@ -22,3 +22,14 @@ container {
     /* Světlejší "stín" pro vystouplý efekt */
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
+
+h2 {
+    font-size: 28px;
+    color: #ff9900;
+    margin-top: 30px;
+}
+
+p {
+    color: #ffcc00;
+    margin-top: 30px;
+}
