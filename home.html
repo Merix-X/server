@@ -2,13 +2,24 @@
 <html>
   <head>
     <link rel="stylesheet" href="style.css">
-    <title>Merix's server</title>
+    <title>Merix's server - Home</title>
   </head>
   <body>
-    <h2>Merix's server</h2>
+    <h1>Welcome on the Merix's server!</h1>
     <div id="container">
-      <h3>Merix Industries website</h3>
-      <a href="https://merix-industries.com/">Link here</a>
+      <h3>Access granted</h3>
+      <button onclick="logout()">Logout</button>
     </div>
+
+    <script>
+      if (!localStorage.getItem("isAuthenticated")) {
+        window.location.href = "login.html";
+      }
+
+      function logout() {
+        localStorage.removeItem("isAuthenticated");
+        window.location.href = "login.html";
+      }
+    </script>
   </body>
 </html>
