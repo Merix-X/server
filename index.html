@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="style.css">
-    <title>Merix's server</title>
+    <title>Merix's server - Login</title>
     <script>
         async function hashPassword(password) {
             const encoder = new TextEncoder();
@@ -22,9 +22,11 @@
             const correctHashedPassword = "5e4eeea132ea8e818aa190477fff2eb8fbc143605fdac25c4409ece0e9caeb4a";
 
             if (username === correctUsername && hashedPassword === correctHashedPassword) {
-                window.location.href = "home.html"; // Přesměrování na jinou stránku
+                localStorage.setItem("username", username);
+                localStorage.setItem("passwordHash", hashedPassword);
+                window.location.href = "home.html"; // Přesměrování na chráněnou stránku
             } else {
-                alert("Incorrect password!");
+                alert("Incorect username or password!");
             }
         }
     </script>
