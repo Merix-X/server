@@ -13,12 +13,12 @@
 
     <script>
       if (!localStorage.getItem("isAuthenticated")) {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
       }
 
       function logout() {
         localStorage.removeItem("isAuthenticated");
-        window.location.href = "login.html";
+        window.location.href = "index.html";
       }
     </script>
   </body>
