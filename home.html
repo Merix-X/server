@@ -5,9 +5,13 @@
     <title>Merix's server</title>
     <link rel="stylesheet" href="style.css">
     <script>
-        if (localStorage.getItem("isAuthenticated") !== "true") {
-            window.location.href = "index.html";
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("isAuthenticated") !== "true") {
+                window.location.href = "index.html";
+            } else {
+                loadNotes();
+            }
+        });
 
         function logout() {
             localStorage.removeItem("isAuthenticated");
@@ -16,56 +20,39 @@
             window.location.href = "index.html";
         }
 
-        async function loadNotes() {
-            try {
-                const response = await fetch("https://notes-backend-production-ff9b.up.railway.app/load"); // Změň na svou adresu serveru
-                const data = await response.json();
-                document.getElementById("notesArea").value = data.notes;
-            } catch (err) {
-                console.error("Chyba při načítání poznámek:", err);
+        function loadNotes() {
+            const savedNotes = localStorage.getItem("notes");
+            if (savedNotes) {
+                document.getElementById("notesArea").value = savedNotes;
             }
         }
 
-        async function saveNotes() {
+        function saveNotes() {
             const notes = document.getElementById("notesArea").value;
-            try {
-                await fetch("https://notes-backend-production-ff9b.up.railway.app/save", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ notes })
-                });
-            } catch (err) {
-                console.error("Chyba při ukládání poznámek:", err);
-            }
+            localStorage.setItem("notes", notes);
         }
-
-        window.onload = () => {
-            loadNotes();
-        };
     </script>
 </head>
 <body>
     <h1>Merix's server</h1>
 
-    <div id="container">
+    <div class="container">
         <h2>Merix Industries website</h2>
         <a href="https://www.merix-industries.com/">Link here</a>
     </div>
 
-    <div id="container">
+    <div class="container">
         <h2>The hidden wiki</h2>
         <a href="https://www.thehiddenwiki.org/">Link here</a>
     </div>
 
-    <div id="container">
+    <div class="container">
         <h2>Hacking lab</h2>
         <a href="lab.html">Link here</a>
     </div>
 
     <!-- Nový kontejner s poznámkami -->
-    <div id="container">
+    <div class="container">
         <h2>📝 Notes</h2>
         <textarea id="notesArea" rows="10" cols="50" placeholder="Sem piš své poznámky..."></textarea><br>
         <button onclick="saveNotes()">💾 Uložit poznámky</button>
