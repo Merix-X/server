@@ -1,23 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
     <title>Hacking lab</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #111;
+            color: #0f0;
+            font-family: monospace;
+            padding: 20px;
+        }
+        #consoleOutput {
+            background-color: #000;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #0f0;
+            margin-bottom: 10px;
+        }
+        #commandInput {
+            width: 100%;
+            padding: 8px;
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+        #logoutBtn {
+            margin-top: 15px;
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
     <script>
-      if (localStorage.getItem("isAuthenticated") !== "true") {
-        window.location.href = "index.html"; // Přesměrování na login
-      }
+        if (localStorage.getItem("isAuthenticated") !== "true") {
+            window.location.href = "index.html";
+        }
 
-      function logout() {
-        localStorage.removeItem("isAuthenticated");
-        localStorage.removeItem("username");
-        localStorage.removeItem("passwordHash");
-        window.location.href = "index.html"; // Odhlášení a přesměrování
-      }
+        function logout() {
+            localStorage.removeItem("isAuthenticated");
+            localStorage.removeItem("username");
+            localStorage.removeItem("passwordHash");
+            window.location.href = "index.html";
+        }
+
+        function runCommand(command) {
+            const output = document.getElementById("consoleOutput");
+
+            switch (command.trim().toLowerCase()) {
+                case "help":
+                    output.innerHTML += "> help<br>Seznam dostupných příkazů: help, about, clear, date, user<br>";
+                    break;
+                case "about":
+                    output.innerHTML += "> about<br>Hacking Lab v1.0 – určený pro výuku a simulaci<br>";
+                    break;
+                case "clear":
+                    output.innerHTML = "";
+                    break;
+                case "date":
+                    output.innerHTML += `> date<br>${new Date().toString()}<br>`;
+                    break;
+                case "user":
+                    const username = localStorage.getItem("username") || "neznámý";
+                    output.innerHTML += `> user<br>Přihlášený uživatel: ${username}<br>`;
+                    break;
+                case "":
+                    break;
+                default:
+                    output.innerHTML += `> ${command}<br>Příkaz nebyl rozpoznán. Zadej "help" pro seznam příkazů.<br>`;
+            }
+
+            output.scrollTop = output.scrollHeight; // automatické scrollování dolů
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("commandInput");
+            input.focus();
+
+            input.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    runCommand(input.value);
+                    input.value = "";
+                }
+            });
+        });
     </script>
 </head>
 <body>
-  <div id="container">
-    <h1>Console</h1>
-  </div>
+    <h1>🧪 Hacking Lab – konzole</h1>
+    <div id="consoleOutput"></div>
+    <input type="text" id="commandInput" placeholder="Zadej příkaz a stiskni Enter...">
+    <br>
+    <button id="logoutBtn" onclick="logout()">Odhlásit se</button>
 </body>
+</html>
