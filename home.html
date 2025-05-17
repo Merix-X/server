@@ -1,61 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Merix's server</title>
-    <link rel="stylesheet" href="style.css">
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("isAuthenticated") !== "true") {
-                window.location.href = "index.html";
-            } else {
-                loadNotes();
-            }
+  <meta charset="UTF-8">
+  <title>Merix's server</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase SDKs (compat verze pro jednodušší použití v čistém HTML/JS) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase konfigurace
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-93xODcba0MGQwPpHa7a-q6EcMeAlOgE",
+      authDomain: "notes-a3dae.firebaseapp.com",
+      projectId: "notes-a3dae",
+      storageBucket: "notes-a3dae.appspot.com",
+      messagingSenderId: "261437364165",
+      appId: "1:261437364165:web:d0fc27718645d82bbbddac",
+      databaseURL: "https://notes-a3dae-default-rtdb.europe-west1.firebasedatabase.app" // <-- důležité
+    };
+
+    // Inicializace Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("isAuthenticated") !== "true") {
+        window.location.href = "index.html";
+      } else {
+        loadNotes();
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("username");
+      localStorage.removeItem("passwordHash");
+      window.location.href = "index.html";
+    }
+
+    function saveNotes() {
+      const notes = document.getElementById("notesArea").value;
+      database.ref('notes').set(notes)
+        .then(() => {
+          alert("Poznámky byly uloženy do cloudu.");
+        })
+        .catch(error => {
+          console.error("Chyba při ukládání poznámek:", error);
+          alert("Nepodařilo se uložit poznámky.");
         });
+    }
 
-        function logout() {
-            localStorage.removeItem("isAuthenticated");
-            localStorage.removeItem("username");
-            localStorage.removeItem("passwordHash");
-            window.location.href = "index.html";
-        }
-
-        function loadNotes() {
-            const savedNotes = localStorage.getItem("notes");
-            if (savedNotes) {
-                document.getElementById("notesArea").value = savedNotes;
-            }
-        }
-
-        function saveNotes() {
-            const notes = document.getElementById("notesArea").value;
-            localStorage.setItem("notes", notes);
-        }
-    </script>
+    function loadNotes() {
+      database.ref('notes').get()
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            document.getElementById("notesArea").value = snapshot.val();
+          } else {
+            alert("Žádné poznámky zatím neexistují.");
+          }
+        })
+        .catch(error => {
+          console.error("Chyba při načítání poznámek:", error);
+          alert("Nepodařilo se načíst poznámky.");
+        });
+    }
+  </script>
 </head>
 <body>
-    <h1>Merix's server</h1>
+  <h1>Merix's server</h1>
 
-    <div class="container">
-        <h2>Merix Industries website</h2>
-        <a href="https://www.merix-industries.com/">Link here</a>
-    </div>
+  <div class="container">
+    <h2>Merix Industries website</h2>
+    <a href="https://www.merix-industries.com/">Link here</a>
+  </div>
 
-    <div class="container">
-        <h2>The hidden wiki</h2>
-        <a href="https://www.thehiddenwiki.org/">Link here</a>
-    </div>
+  <div class="container">
+    <h2>The hidden wiki</h2>
+    <a href="https://www.thehiddenwiki.org/">Link here</a>
+  </div>
 
-    <div class="container">
-        <h2>Hacking lab</h2>
-        <a href="lab.html">Link here</a>
-    </div>
+  <div class="container">
+    <h2>Hacking lab</h2>
+    <a href="lab.html">Link here</a>
+  </div>
 
-    <!-- Nový kontejner s poznámkami -->
-    <div class="container">
-        <h2>📝 Notes</h2>
-        <textarea id="notesArea" rows="10" cols="50" placeholder="Sem piš své poznámky..."></textarea><br>
-        <button onclick="saveNotes()">💾 Uložit poznámky</button>
-    </div>
+  <div class="container">
+    <h2>📝 Notes</h2>
+    <textarea id="notesArea" rows="10" cols="50" placeholder="Sem piš své poznámky..."></textarea><br>
+    <button onclick="saveNotes()">💾 Uložit poznámky</button>
+    <button onclick="loadNotes()">🔄 Načíst poznámky</button>
+  </div>
 </body>
 </html>
