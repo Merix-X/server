@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Hacking lab</title>
+    <title>Hacking Lab</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -37,13 +37,13 @@
         }
     </style>
     <script>
-        // Zkontroluj autentizaci (volitelně)
+        // Check authentication
         if (localStorage.getItem("isAuthenticated") !== "true") {
             window.location.href = "index.html";
         }
 
-        // 🔐 Token pevně nastavený v kódu (NEPOUŽÍVEJ NA VEŘEJNÉM WEBU)
-        const API_TOKEN = "9d55c626946490a7f530c037d72dffb8a6996800db40daacca4617a8f52ce07c"; // ← zde nahraď vlastním tokenem
+        const API_TOKEN = localStorage.getItem("apiToken");
+        const API_URL = "https://web-production-fdc1c.up.railway.app/run";
 
         async function runCommand(command) {
             const output = document.getElementById("consoleOutput");
@@ -51,8 +51,13 @@
 
             output.innerHTML += `> ${command}\n`;
 
+            if (!API_TOKEN) {
+                output.innerHTML += "❌ Token not found. Please log in again.\n";
+                return;
+            }
+
             try {
-                const response = await fetch("https://web-production-fdc1c.up.railway.app/run", {
+                const response = await fetch(API_URL, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -62,13 +67,13 @@
                 });
 
                 if (!response.ok) {
-                    output.innerHTML += `Chyba serveru: ${response.status} ${response.statusText}\n`;
+                    output.innerHTML += `Server error: ${response.status} ${response.statusText}\n`;
                 } else {
                     const data = await response.json();
                     output.innerHTML += data.output + "\n";
                 }
             } catch (error) {
-                output.innerHTML += `Chyba připojení k serveru: ${error.message}\n`;
+                output.innerHTML += `Connection error: ${error.message}\n`;
             }
 
             output.scrollTop = output.scrollHeight;
@@ -78,6 +83,7 @@
             localStorage.removeItem("isAuthenticated");
             localStorage.removeItem("username");
             localStorage.removeItem("passwordHash");
+            localStorage.removeItem("apiToken");
             window.location.href = "index.html";
         }
 
@@ -95,10 +101,10 @@
     </script>
 </head>
 <body>
-    <h1>🧪 Hacking Lab – konzole</h1>
+    <h1>🧪 Hacking Lab – Console</h1>
     <div id="consoleOutput"></div>
-    <input type="text" id="commandInput" placeholder="Zadej příkaz a stiskni Enter...">
+    <input type="text" id="commandInput" placeholder="Enter command and press Enter...">
     <br>
-    <button id="logoutBtn" onclick="logout()">Odhlásit se</button>
+    <button id="logoutBtn" onclick="logout()">Log Out</button>
 </body>
 </html>
