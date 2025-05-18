@@ -18,7 +18,7 @@
             overflow-y: auto;
             border: 1px solid #0f0;
             margin-bottom: 10px;
-            white-space: pre-wrap; /* pro zachování formátování */
+            white-space: pre-wrap;
         }
         #commandInput {
             width: 100%;
@@ -42,9 +42,8 @@
             window.location.href = "index.html";
         }
 
-        // API token - ideálně bys ho nastavil po přihlášení do localStorage
-        // Nebo ho tady zapiš přímo (není bezpečné pro veřejné stránky)
-        const API_TOKEN = localStorage.getItem("apiToken") || "9d55c626946490a7f530c037d72dffb8a6996800db40daacca4617a8f52ce07c";
+        // Token z localStorage
+        const API_TOKEN = localStorage.getItem("apiToken");
 
         function logout() {
             localStorage.removeItem("isAuthenticated");
@@ -58,11 +57,10 @@
             const output = document.getElementById("consoleOutput");
             if (!command.trim()) return;
 
-            // Ukáže příkaz, který uživatel zadal
             output.innerHTML += `> ${command}\n`;
 
             try {
-               const response = await fetch('https://web-production-d727.up.railway.app/run', {
+                const response = await fetch('https://web-production-d727.up.railway.app/run', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -81,7 +79,7 @@
                 output.innerHTML += `Chyba připojení k serveru: ${error.message}\n`;
             }
 
-            output.scrollTop = output.scrollHeight; // scrolluj dolů
+            output.scrollTop = output.scrollHeight;
         }
 
         document.addEventListener("DOMContentLoaded", () => {
