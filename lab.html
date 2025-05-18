@@ -62,7 +62,7 @@
             output.innerHTML += `> ${command}\n`;
 
             try {
-                const response = await fetch('/run', {
+               const response = await fetch('https://web-production-d727.up.railway.app/run', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
