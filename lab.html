@@ -18,6 +18,7 @@
             overflow-y: auto;
             border: 1px solid #0f0;
             margin-bottom: 10px;
+            white-space: pre-wrap; /* pro zachování formátování */
         }
         #commandInput {
             width: 100%;
@@ -36,44 +37,51 @@
         }
     </style>
     <script>
+        // Zkontroluj autentizaci
         if (localStorage.getItem("isAuthenticated") !== "true") {
             window.location.href = "index.html";
         }
+
+        // API token - ideálně bys ho nastavil po přihlášení do localStorage
+        // Nebo ho tady zapiš přímo (není bezpečné pro veřejné stránky)
+        const API_TOKEN = localStorage.getItem("apiToken") || "9d55c626946490a7f530c037d72dffb8a6996800db40daacca4617a8f52ce07c";
 
         function logout() {
             localStorage.removeItem("isAuthenticated");
             localStorage.removeItem("username");
             localStorage.removeItem("passwordHash");
+            localStorage.removeItem("apiToken");
             window.location.href = "index.html";
         }
 
-        function runCommand(command) {
+        async function runCommand(command) {
             const output = document.getElementById("consoleOutput");
+            if (!command.trim()) return;
 
-            switch (command.trim().toLowerCase()) {
-                case "help":
-                    output.innerHTML += "> help<br>Seznam dostupných příkazů: help, about, clear, date, user<br>";
-                    break;
-                case "about":
-                    output.innerHTML += "> about<br>Hacking Lab v1.0 – určený pro výuku a simulaci<br>";
-                    break;
-                case "clear":
-                    output.innerHTML = "";
-                    break;
-                case "date":
-                    output.innerHTML += `> date<br>${new Date().toString()}<br>`;
-                    break;
-                case "user":
-                    const username = localStorage.getItem("username") || "neznámý";
-                    output.innerHTML += `> user<br>Přihlášený uživatel: ${username}<br>`;
-                    break;
-                case "":
-                    break;
-                default:
-                    output.innerHTML += `> ${command}<br>Příkaz nebyl rozpoznán. Zadej "help" pro seznam příkazů.<br>`;
+            // Ukáže příkaz, který uživatel zadal
+            output.innerHTML += `> ${command}\n`;
+
+            try {
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + API_TOKEN
+                    },
+                    body: JSON.stringify({ command })
+                });
+
+                if (!response.ok) {
+                    output.innerHTML += `Chyba serveru: ${response.status} ${response.statusText}\n`;
+                } else {
+                    const data = await response.json();
+                    output.innerHTML += data.output + '\n';
+                }
+            } catch (error) {
+                output.innerHTML += `Chyba připojení k serveru: ${error.message}\n`;
             }
 
-            output.scrollTop = output.scrollHeight; // automatické scrollování dolů
+            output.scrollTop = output.scrollHeight; // scrolluj dolů
         }
 
         document.addEventListener("DOMContentLoaded", () => {
