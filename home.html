@@ -44,26 +44,26 @@
       const notes = document.getElementById("notesArea").value;
       database.ref('notes').set(notes)
         .then(() => {
-          alert("Poznámky byly uloženy do cloudu.");
+          alert("The notes were stored in the cloud.");
         })
         .catch(error => {
-          console.error("Chyba při ukládání poznámek:", error);
-          alert("Nepodařilo se uložit poznámky.");
+          console.error("Error saving notes:", error);
+          alert("Failed to save notes.");
         });
     }
-
+    
     function loadNotes() {
-      database.ref('notes').get()
+      database.ref('notes').once("value")
         .then(snapshot => {
           if (snapshot.exists()) {
             document.getElementById("notesArea").value = snapshot.val();
           } else {
-            alert("Žádné poznámky zatím neexistují.");
+            alert("There are no notes yet.");
           }
         })
         .catch(error => {
-          console.error("Chyba při načítání poznámek:", error);
-          alert("Nepodařilo se načíst poznámky.");
+          console.error("Error loading notes:", error);
+          alert("Unable to retrieve notes.");
         });
     }
   </script>
@@ -89,8 +89,8 @@
   <div class="container">
     <h2>📝 Notes</h2>
     <textarea id="notesArea" rows="10" cols="50" placeholder="Sem piš své poznámky..."></textarea><br>
-    <button onclick="saveNotes()">💾 Uložit poznámky</button>
-    <button onclick="loadNotes()">🔄 Načíst poznámky</button>
+    <button onclick="saveNotes()">💾 Save notes</button>
+    <button onclick="loadNotes()">🔄 Load notes</button>
   </div>
 </body>
 </html>
