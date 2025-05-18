@@ -4,6 +4,29 @@
     <meta charset="UTF-8">
     <title>Merix's server - Login</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #111;
+            color: #0f0;
+            font-family: monospace;
+            padding: 40px;
+        }
+        input {
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px;
+            width: 300px;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: green;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
     <script>
         async function hashPassword(password) {
             const encoder = new TextEncoder();
@@ -19,9 +42,11 @@
 
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
+            const apiToken = document.getElementById("apiToken").value;
 
-            const correctUsername = "admerix"; // změň podle potřeby
-            const correctHashedPassword = "5e4eeea132ea8e818aa190477fff2eb8fbc143605fdac25c4409ece0e9caeb4a"; // SHA-256 hash hesla
+            // Změň podle potřeby:
+            const correctUsername = "admerix";
+            const correctHashedPassword = "5e4eeea132ea8e818aa190477fff2eb8fbc143605fdac25c4409ece0e9caeb4a";
 
             const hashedPassword = await hashPassword(password);
 
@@ -29,6 +54,7 @@
                 localStorage.setItem("isAuthenticated", "true");
                 localStorage.setItem("username", username);
                 localStorage.setItem("passwordHash", hashedPassword);
+                localStorage.setItem("apiToken", apiToken);
                 window.location.href = "home.html";
             } else {
                 alert("Incorrect username or password.");
@@ -39,8 +65,9 @@
 <body>
     <h1>Merix's server - Login</h1>
     <form onsubmit="login(event)">
-        <input type="text" id="username" name="username" placeholder="Username" required><br><br>
-        <input type="password" id="password" name="password" placeholder="Password" required><br><br>
+        <input type="text" id="username" name="username" placeholder="Username" required><br>
+        <input type="password" id="password" name="password" placeholder="Password" required><br>
+        <input type="text" id="apiToken" name="apiToken" placeholder="API Token" required><br>
         <button type="submit">Log In</button>
     </form>
 </body>
