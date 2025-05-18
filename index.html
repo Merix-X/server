@@ -2,64 +2,50 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Merix's server</title>
+    <title>Merix's server - Login</title>
     <link rel="stylesheet" href="style.css">
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("isAuthenticated") !== "true") {
-                window.location.href = "index.html";
-            } else {
-                loadNotes();
-            }
-        });
-
-        function logout() {
-            localStorage.removeItem("isAuthenticated");
-            localStorage.removeItem("username");
-            localStorage.removeItem("passwordHash");
-            window.location.href = "index.html";
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+            return hashHex;
         }
 
-        function loadNotes() {
-            const savedNotes = localStorage.getItem("notes");
-            if (savedNotes) {
-                document.getElementById("notesArea").value = savedNotes;
-            } else {
-                alert("Žádné uložené poznámky nebyly nalezeny.");
-            }
-        }
+        async function login(event) {
+            event.preventDefault();
 
-        function saveNotes() {
-            const notes = document.getElementById("notesArea").value;
-            localStorage.setItem("notes", notes);
-            alert("Poznámky byly uloženy.");
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const correctUsername = "admerix"; // změň podle potřeby
+            const correctHashedPassword = "5e4eeea132ea8e818aa190477fff2eb8fbc143605fdac25c4409ece0e9caeb4a"; // SHA-256 hash hesla
+
+            const hashedPassword = await hashPassword(password);
+
+            if (username === correctUsername && hashedPassword === correctHashedPassword) {
+                localStorage.setItem("isAuthenticated", "true");
+                localStorage.setItem("username", username);
+                localStorage.setItem("passwordHash", hashedPassword);
+                window.location.href = "home.html";
+            } else {
+                alert("Incorrect username or password.");
+            }
         }
     </script>
 </head>
 <body>
-    <h1>Merix's server</h1>
+    <h1>Login to the Merix server</h1>
+    <form onsubmit="login(event)">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
 
-    <div class="container">
-        <h2>Merix Industries website</h2>
-        <a href="https://www.merix-industries.com/">Link here</a>
-    </div>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
 
-    <div class="container">
-        <h2>The hidden wiki</h2>
-        <a href="https://www.thehiddenwiki.org/">Link here</a>
-    </div>
-
-    <div class="container">
-        <h2>Hacking lab</h2>
-        <a href="lab.html">Link here</a>
-    </div>
-
-    <!-- Nový kontejner s poznámkami -->
-    <div class="container">
-        <h2>📝 Notes</h2>
-        <textarea id="notesArea" rows="10" cols="50" placeholder="Sem piš své poznámky..."></textarea><br>
-        <button onclick="saveNotes()">💾 Uložit poznámky</button>
-        <button onclick="loadNotes()">🔄 Načíst poznámky</button>
-    </div>
+        <button type="submit">Log In</button>
+    </form>
 </body>
 </html>
