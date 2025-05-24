@@ -5,13 +5,12 @@
   <title>Merix's Server</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase SDKs (compat versions) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <script>
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyD-93xODcba0MGQwPpHa7a-q6EcMeAlOgE",
       authDomain: "notes-a3dae.firebaseapp.com",
@@ -26,32 +25,33 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Login with hardcoded user (for testing)
-      const email = "matyas.kounovsky@merix-industries.com";
-      const password = "Z6vwB6u9u9notes;";
+    function loginUser() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          console.log("Signed in:", userCredential.user.uid);
+          alert("Successfully signed in!");
+          document.getElementById("loginSection").style.display = "none";
+          document.getElementById("notesSection").style.display = "block";
           loadNotes();
         })
         .catch(error => {
           console.error("Login error:", error.message);
-          alert("Login failed. Check your email/password.");
+          alert("Login failed: " + error.message);
         });
-    });
+    }
 
     function saveNotes() {
       const user = auth.currentUser;
       if (!user) {
-        alert("Not signed in!");
+        alert("You must be logged in to save notes.");
         return;
       }
 
       const notes = document.getElementById("notesArea").value;
       database.ref('notes/' + user.uid).set(notes)
-        .then(() => alert("Notes were saved to the cloud."))
+        .then(() => alert("Notes saved to the cloud."))
         .catch(error => {
           console.error("Error saving notes:", error);
           alert("Failed to save notes.");
@@ -60,10 +60,7 @@
 
     function loadNotes() {
       const user = auth.currentUser;
-      if (!user) {
-        alert("Not signed in!");
-        return;
-      }
+      if (!user) return;
 
       database.ref('notes/' + user.uid).once("value")
         .then(snapshot => {
@@ -81,8 +78,9 @@
 
     function logout() {
       auth.signOut().then(() => {
-        alert("You have been signed out.");
-        location.reload();
+        alert("You have been logged out.");
+        document.getElementById("notesSection").style.display = "none";
+        document.getElementById("loginSection").style.display = "block";
       });
     }
   </script>
@@ -105,7 +103,16 @@
     <a href="lab.html">Go to lab</a>
   </div>
 
-  <div class="container">
+  <!-- Login Section -->
+  <div class="container" id="loginSection">
+    <h2>🔐 Sign In</h2>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="password" id="password" placeholder="Password"><br><br>
+    <button onclick="loginUser()">Sign In</button>
+  </div>
+
+  <!-- Notes Section (hidden by default) -->
+  <div class="container" id="notesSection" style="display: none;">
     <h2>📝 Notes</h2>
     <textarea id="notesArea" rows="10" cols="50" placeholder="Write your notes here..."></textarea><br>
     <button onclick="saveNotes()">💾 Save Notes</button>
