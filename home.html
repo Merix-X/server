@@ -2,15 +2,16 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Merix's server</title>
+  <title>Merix's Server</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase SDKs (compat verze pro jednodušší použití v čistém HTML/JS) -->
+  <!-- Firebase SDKs (compat versions) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <script>
-    // Firebase konfigurace
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyD-93xODcba0MGQwPpHa7a-q6EcMeAlOgE",
       authDomain: "notes-a3dae.firebaseapp.com",
@@ -18,79 +19,98 @@
       storageBucket: "notes-a3dae.appspot.com",
       messagingSenderId: "261437364165",
       appId: "1:261437364165:web:d0fc27718645d82bbbddac",
-      databaseURL: "https://notes-a3dae-default-rtdb.europe-west1.firebasedatabase.app" // <-- důležité
+      databaseURL: "https://notes-a3dae-default-rtdb.europe-west1.firebasedatabase.app"
     };
 
-    // Inicializace Firebase
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const database = firebase.database();
 
     document.addEventListener("DOMContentLoaded", () => {
-      if (localStorage.getItem("isAuthenticated") !== "true") {
-        window.location.href = "index.html";
-      } else {
-        loadNotes();
-      }
+      // Login with hardcoded user (for testing)
+      const email = "YOUR_USER_EMAIL";
+      const password = "YOUR_USER_PASSWORD";
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          console.log("Signed in:", userCredential.user.uid);
+          loadNotes();
+        })
+        .catch(error => {
+          console.error("Login error:", error.message);
+          alert("Login failed. Check your email/password.");
+        });
     });
 
-    function logout() {
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("username");
-      localStorage.removeItem("passwordHash");
-      window.location.href = "index.html";
-    }
-
     function saveNotes() {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Not signed in!");
+        return;
+      }
+
       const notes = document.getElementById("notesArea").value;
-      database.ref('notes').set(notes)
-        .then(() => {
-          alert("The notes were stored in the cloud.");
-        })
+      database.ref('notes/' + user.uid).set(notes)
+        .then(() => alert("Notes were saved to the cloud."))
         .catch(error => {
           console.error("Error saving notes:", error);
           alert("Failed to save notes.");
         });
     }
-    
+
     function loadNotes() {
-      database.ref('notes').once("value")
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Not signed in!");
+        return;
+      }
+
+      database.ref('notes/' + user.uid).once("value")
         .then(snapshot => {
           if (snapshot.exists()) {
             document.getElementById("notesArea").value = snapshot.val();
           } else {
-            alert("There are no notes yet.");
+            alert("No notes found.");
           }
         })
         .catch(error => {
           console.error("Error loading notes:", error);
-          alert("Unable to retrieve notes.");
+          alert("Failed to load notes.");
         });
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        alert("You have been signed out.");
+        location.reload();
+      });
     }
   </script>
 </head>
 <body>
-  <h1>Merix's server</h1>
+  <h1>Merix's Server</h1>
 
   <div class="container">
-    <h2>Merix Industries website</h2>
-    <a href="https://www.merix-industries.com/">Link here</a>
+    <h2>Merix Industries Website</h2>
+    <a href="https://www.merix-industries.com/">Visit here</a>
   </div>
 
   <div class="container">
-    <h2>The hidden wiki</h2>
-    <a href="https://www.thehiddenwiki.org/">Link here</a>
+    <h2>The Hidden Wiki</h2>
+    <a href="https://www.thehiddenwiki.org/">Visit here</a>
   </div>
 
   <div class="container">
-    <h2>Hacking lab</h2>
-    <a href="lab.html">Link here</a>
+    <h2>Hacking Lab</h2>
+    <a href="lab.html">Go to lab</a>
   </div>
 
   <div class="container">
     <h2>📝 Notes</h2>
-    <textarea id="notesArea" rows="10" cols="50" placeholder="Sem piš své poznámky..."></textarea><br>
-    <button onclick="saveNotes()">💾 Save notes</button>
-    <button onclick="loadNotes()">🔄 Load notes</button>
+    <textarea id="notesArea" rows="10" cols="50" placeholder="Write your notes here..."></textarea><br>
+    <button onclick="saveNotes()">💾 Save Notes</button>
+    <button onclick="loadNotes()">🔄 Load Notes</button>
+    <button onclick="logout()">🚪 Log Out</button>
   </div>
 </body>
 </html>
